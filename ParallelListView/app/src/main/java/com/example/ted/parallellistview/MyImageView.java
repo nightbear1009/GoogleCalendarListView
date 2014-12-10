@@ -2,9 +2,7 @@ package com.example.ted.parallellistview;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ImageView;
 
 import de.greenrobot.event.EventBus;
@@ -14,20 +12,8 @@ import de.greenrobot.event.EventBus;
  */
 public class MyImageView extends ImageView {
     public static class ChangeYEvent {
-        int y;
-        int mFirst;
-        int mLast;
-
-        public ChangeYEvent(int y, int firstVisible, int lastVisible) {
-            this.y = y;
-            mFirst = firstVisible;
-            mLast = lastVisible;
-        }
+        public ChangeYEvent() {}
     }
-
-    private int y = 0;
-    private int mItemPosition;
-    private Paint paint = new Paint();
 
     public MyImageView(Context context) {
         super(context);
@@ -45,14 +31,12 @@ public class MyImageView extends ImageView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         EventBus.getDefault().register(this);
-        Log.d("Ted", "onAttach");
     }
 
 
     //Not Trigger
     @Override
     protected void onDetachedFromWindow() {
-        Log.d("Ted", "onDetach");
         super.onDetachedFromWindow();
         EventBus.getDefault().unregister(this);
     }
@@ -67,15 +51,7 @@ public class MyImageView extends ImageView {
         }
     }
 
-    public void setItemPosition(int pos) {
-        mItemPosition = pos;
-    }
-
-
     public void onEventMainThread(ChangeYEvent event) {
-//        if(event.mFirst <mItemPosition && event.mLast > mItemPosition) {
-
-
         int[] location = new int[2];
 
         getLocationInWindow(location);

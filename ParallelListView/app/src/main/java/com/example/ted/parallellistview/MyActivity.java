@@ -2,8 +2,6 @@ package com.example.ted.parallellistview;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,10 +13,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -69,7 +63,6 @@ public class MyActivity extends Activity {
                 holder.img.setVisibility(View.VISIBLE);
                 holder.textview.setVisibility(View.GONE);
                 Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.img);
-                holder.img.setItemPosition(i);
             } else {
                 holder.img.setVisibility(View.GONE);
                 holder.textview.setVisibility(View.VISIBLE);
@@ -100,13 +93,7 @@ public class MyActivity extends Activity {
 
             @Override
             public void onScroll(AbsListView absListView, int i, int i2, int i3) {
-//                Log.d("Ted", "i " + i + " " + i2 + " " + i3);
-//                if(absListView.getChildAt(10) !=null) {
-//                    Log.d("Ted", "topp " + absListView.getChildAt(10).getTop());
-//                }
-                EventBus.getDefault().post(new MyImageView.ChangeYEvent(i,
-                        absListView.getFirstVisiblePosition(),
-                        absListView.getLastVisiblePosition()));
+                EventBus.getDefault().post(new MyImageView.ChangeYEvent());
             }
         });
 
