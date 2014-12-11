@@ -31,7 +31,7 @@ public class MyActivity extends Activity {
 
         @Override
         public int getCount() {
-            return Data.URLS.length*10;
+            return Data.URLS.length*20;
         }
 
         @Override
@@ -62,7 +62,8 @@ public class MyActivity extends Activity {
             if (i % 20 == 0) {
                 holder.img.setVisibility(View.VISIBLE);
                 holder.textview.setVisibility(View.GONE);
-                Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.img);
+                Picasso.with(inflater.getContext()).load(Data.URLS[i/20]).resize(600,400).into(holder.img);
+                holder.img.setExpandHeight(400);
             } else {
                 holder.img.setVisibility(View.GONE);
                 holder.textview.setVisibility(View.VISIBLE);
@@ -80,6 +81,8 @@ public class MyActivity extends Activity {
 
     }
 
+    private int mLastFirstVisibleItem;
+    private boolean mIsScrollingUp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +95,15 @@ public class MyActivity extends Activity {
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int i, int i2, int i3) {
-                EventBus.getDefault().post(new MyImageView.ChangeYEvent());
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                final int currentFirstVisibleItem = absListView.getFirstVisiblePosition();
+                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                    mIsScrollingUp = false;
+                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                    mIsScrollingUp = true;
+                }
+                mLastFirstVisibleItem = currentFirstVisibleItem;
+                EventBus.getDefault().post(new MyImageView.ChangeYEvent(mIsScrollingUp,firstVisibleItem,firstVisibleItem+visibleItemCount));
             }
         });
 

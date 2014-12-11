@@ -11,9 +11,25 @@ import de.greenrobot.event.EventBus;
  * Created by ted on 14/12/9.
  */
 public class MyImageView extends ImageView {
+    private int MAXIMUM_SHIFT = 100;
+
     public static class ChangeYEvent {
-        public ChangeYEvent() {}
+        public boolean isScrollUp() {
+            return isScrollUp;
+        }
+
+        boolean isScrollUp;
+        int firstItem;
+        int lastItem;
+
+        public ChangeYEvent(boolean isScrollUp, int firstItem, int lastItem) {
+            this.isScrollUp = isScrollUp;
+            this.firstItem = firstItem;
+            this.lastItem = lastItem;
+        }
     }
+
+    private int mExpandHeight = 400;//default value
 
     public MyImageView(Context context) {
         super(context);
@@ -25,6 +41,12 @@ public class MyImageView extends ImageView {
 
     public MyImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(1000, 200);
     }
 
     @Override
@@ -43,19 +65,48 @@ public class MyImageView extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (getDrawable() != null) {
-            getDrawable().setBounds(0, 0, getWidth(), getHeight() + 400);
-            getDrawable().draw(canvas);
+        super.onDraw(canvas);
+
+    }
+
+    int precount = 0;
+
+    public void setExpandHeight(int mExpandHeight) {
+        this.mExpandHeight = mExpandHeight;
+    }
+
+    private int mDeltaHeight = 0;
+    private int mDefaultOffset = 0;
+
+    public void onEvent(ChangeYEvent event) {
+//        Log.d("Ted","mImage height "+getDrawable().getBounds().bottom);
+//        int[] location = new int[2];
+////
+//        getLocationInWindow(location);
+////        Log.d("Ted","location "+location[1]);
+//        setScrollY((int) (location[1] * 0.2));
+
+
+        if (event.isScrollUp) {
+            doScrollUp(1);
         } else {
-            super.onDraw(canvas);
+            doScrollDown(1);
+        }
+
+    }
+
+    private void doScrollDown(int delta) {
+        if (mDeltaHeight == 0) {
+            mDeltaHeight = Math.abs(getDrawable().getBounds().bottom - getHeight());
+        }
+        if (getScrollY() < mDeltaHeight) {
+            setScrollY(getScrollY() + delta);
         }
     }
 
-    public void onEventMainThread(ChangeYEvent event) {
-        int[] location = new int[2];
-
-        getLocationInWindow(location);
-
-        setScrollY((int) (location[1] * 0.5));
+    private void doScrollUp(int delta) {
+        if (getScrollY() > 0) {
+            setScrollY(getScrollY() - delta);
+        }
     }
 }
