@@ -48,7 +48,6 @@ public class MyActivity extends Activity {
         public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View view = inflater.inflate(R.layout.adapter_layout, null, false);
             MyViewHolder viewHolder = new MyViewHolder(view);
-
             return viewHolder;
         }
 
@@ -58,7 +57,6 @@ public class MyActivity extends Activity {
             if (i % 20 == 0) {
                 holder.linearlayout.setVisibility(View.VISIBLE);
                 holder.textview.setVisibility(View.GONE);
-
                 Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.linearlayout.getImageView());
 
             } else {
@@ -76,6 +74,8 @@ public class MyActivity extends Activity {
 
     }
 
+    private int mLastFirstVisibleItem;
+    private boolean mIsScrollingUp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +88,6 @@ public class MyActivity extends Activity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
             }
-
         });
 
 

@@ -17,6 +17,8 @@ import de.greenrobot.event.EventBus;
  * Created by ted on 14/12/9.
  */
 public class MyImageView extends ImageView {
+    private int MAXIMUM_SHIFT = 100;
+
     public static class ChangeYEvent {
         public ChangeYEvent(int dy) {
             this.dy = dy;
@@ -79,12 +81,12 @@ public class MyImageView extends ImageView {
         EventBus.getDefault().unregister(this);
     }
 
-
     public void onEventMainThread(ChangeYEvent event) {
         if(event.getDy() >= mHeight/2 &&  event.getDy() <= mHeight/2 + 100){
             setScrollY((event.getDy() - mHeight/2)/3);
         }else if (event.getDy() <= mHeight/2 && event.getDy() >= mHeight/2 - 100){
             setScrollY((event.getDy() - mHeight/2)/3);
+
         }
     }
 }

@@ -4,8 +4,8 @@ final class Data {
   static final String BASE = "http://i.imgur.com/";
   static final String EXT = ".jpg";
   static final String[] URLS = {
-      BASE + "CqmBjo5" + EXT, BASE + "zkaAooq" + EXT, BASE + "0gqnEaY" + EXT,
-      BASE + "9gbQ7YR" + EXT, BASE + "aFhEEby" + EXT, BASE + "0E2tgV7" + EXT,
+      BASE + "63MzZEy" + EXT, BASE + "m6m0FhB" + EXT, BASE + "5QxApDF" + EXT,
+      BASE + "9gbQ7YR" + EXT, BASE + "wHlw5cr" + EXT, BASE + "0E2tgV7" + EXT,
       BASE + "P5JLfjk" + EXT, BASE + "nz67a4F" + EXT, BASE + "dFH34N5" + EXT,
       BASE + "FI49ftb" + EXT, BASE + "DvpvklR" + EXT, BASE + "DNKnbG8" + EXT,
       BASE + "yAdbrLp" + EXT, BASE + "55w5Km7" + EXT, BASE + "NIwNTMR" + EXT,
