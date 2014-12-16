@@ -2,7 +2,13 @@ package com.example.ted.parallellistview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import de.greenrobot.event.EventBus;
@@ -12,19 +18,51 @@ import de.greenrobot.event.EventBus;
  */
 public class MyImageView extends ImageView {
     public static class ChangeYEvent {
-        public ChangeYEvent() {}
+        public ChangeYEvent(int dy) {
+            this.dy = dy;
+        }
+
+        private int dy;
+
+        public int getDy() {
+            return dy;
+        }
     }
+
+    private int mHeight;
+    private int mWidth;
+
+    private int mScreenHeight;
 
     public MyImageView(Context context) {
         super(context);
+        init();
     }
 
     public MyImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public MyImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        mWidth  = size.x;
+        mHeight = size.y;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        setMeasuredDimension(mWidth, 300);
     }
 
     @Override
@@ -33,7 +71,7 @@ public class MyImageView extends ImageView {
         EventBus.getDefault().register(this);
     }
 
-
+    //
     //Not Trigger
     @Override
     protected void onDetachedFromWindow() {
@@ -41,21 +79,12 @@ public class MyImageView extends ImageView {
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        if (getDrawable() != null) {
-            getDrawable().setBounds(0, 0, getWidth(), getHeight() + 400);
-            getDrawable().draw(canvas);
-        } else {
-            super.onDraw(canvas);
-        }
-    }
 
     public void onEventMainThread(ChangeYEvent event) {
-        int[] location = new int[2];
-
-        getLocationInWindow(location);
-
-        setScrollY((int) (location[1] * 0.5));
+        if(event.getDy() >= mHeight/2 &&  event.getDy() <= mHeight/2 + 100){
+            setScrollY((event.getDy() - mHeight/2)/3);
+        }else if (event.getDy() <= mHeight/2 && event.getDy() >= mHeight/2 - 100){
+            setScrollY((event.getDy() - mHeight/2)/3);
+        }
     }
 }
