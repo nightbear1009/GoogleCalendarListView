@@ -18,13 +18,16 @@ public class MyImageView extends ImageView {
     private int mScreenHeight;
     private int mScreenWidth;
 
-    int mVisualHeight = 300;
-    int mVisualWidth = 1080;
+    private int mVisualHeight = 300;
+    private int mVisualWidth = 1080;
+
+    //移動的速度
+    private float mShiftSpeed = 0.3f;
 
     //一定要小於0 圖片才會往上移動
-    float mBaseOffset;
-    float mMaximumShift;
-    float mMaximumWidht;
+    private float mBaseOffset;
+    private float mMaximumShift;
+    private float mMaximumWidht;
 
     public MyImageView(Context context) {
         super(context);
@@ -68,13 +71,17 @@ public class MyImageView extends ImageView {
         super.setImageDrawable(drawable);
 
         if (getDrawable() != null) {
+
+            //setDefault offset
+            mBaseOffset = -getDrawable().getIntrinsicHeight()/3;
+
             //將圖片設定為橫幅滿版
             scaleImageToFull();
 
             //計算最大可移動高度
             caluculateMaximum();
 
-            mBaseOffset = -getDrawable().getIntrinsicHeight()/3;
+
         }
     }
 
@@ -84,7 +91,7 @@ public class MyImageView extends ImageView {
         f[Matrix.MTRANS_X] = 0;
         f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
         f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
-        f[Matrix.MTRANS_Y] = -mBaseOffset;
+        f[Matrix.MTRANS_Y] = mBaseOffset;
         mShiftOffset = f[Matrix.MTRANS_Y];
         Matrix m = getImageMatrix();
         m.setValues(f);
@@ -123,7 +130,7 @@ public class MyImageView extends ImageView {
         float[] values = new float[9];
         getImageMatrix().getValues(values);
         values[Matrix.MTRANS_X] = 0;
-        values[Matrix.MTRANS_Y] = mShiftOffset;
+        values[Matrix.MTRANS_Y] = mShiftOffset* mShiftSpeed;
         Matrix m = getImageMatrix();
         m.setValues(values);
         setImageMatrix(m);
