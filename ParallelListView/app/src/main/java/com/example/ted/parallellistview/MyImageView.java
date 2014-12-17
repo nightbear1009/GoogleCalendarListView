@@ -1,10 +1,7 @@
 package com.example.ted.parallellistview;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -17,7 +14,6 @@ import de.greenrobot.event.EventBus;
  * Created by ted on 14/12/9.
  */
 public class MyImageView extends ImageView {
-    private int MAXIMUM_SHIFT = 100;
 
     public static class ChangeYEvent {
         public ChangeYEvent(int dy) {
@@ -33,8 +29,6 @@ public class MyImageView extends ImageView {
 
     private int mHeight;
     private int mWidth;
-
-    private int mScreenHeight;
 
     public MyImageView(Context context) {
         super(context);
@@ -71,6 +65,7 @@ public class MyImageView extends ImageView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         EventBus.getDefault().register(this);
+        setScrollY(0);
     }
 
     //
@@ -82,11 +77,20 @@ public class MyImageView extends ImageView {
     }
 
     public void onEventMainThread(ChangeYEvent event) {
-        if(event.getDy() >= mHeight/2 &&  event.getDy() <= mHeight/2 + 100){
-            setScrollY((event.getDy() - mHeight/2)/3);
-        }else if (event.getDy() <= mHeight/2 && event.getDy() >= mHeight/2 - 100){
-            setScrollY((event.getDy() - mHeight/2)/3);
 
+        if(event.getDy() >= mHeight/2 &&  event.getDy() <= mHeight/2 + 200){
+           double distance =  event.getDy() - mHeight/2;
+           double scrollvalue = Math.pow(2,-distance)+1;
+            Log.d("Ted", " scroll up" + scrollvalue);
+           setScrollY((int)scrollvalue);
+        }else if (event.getDy() <= mHeight/2 && event.getDy() >= mHeight/2 - 200){
+            int distance =  event.getDy() - mHeight/2;
+            int scrollvalue = 2^distance+1;
+            Log.d("Ted", " scroll down" + scrollvalue);
+            setScrollY(-scrollvalue);
+        }else{
         }
+
+
     }
 }

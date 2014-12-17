@@ -15,7 +15,7 @@
         android:visibility="gone" />
 
 
-    <com.example.ted.parallellistview.MyLinearLayout
+    <com.example.ted.parallellistview.MyImageView
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -9,15 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-
-import de.greenrobot.event.EventBus;
 
 
 public class MyActivity extends Activity {
@@ -27,13 +21,11 @@ public class MyActivity extends Activity {
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         TextView textview;
-        MyLinearLayout linearlayout;
+        MyImageView myImageView;
         public MyViewHolder(View itemView) {
             super(itemView);
-//            holder = new ViewHolder();
-//                view = inflater.inflate(R.layout.adapter_layout, null, false);
                 textview = (TextView) itemView.findViewById(R.id.textview);
-                linearlayout = (MyLinearLayout) itemView.findViewById(R.id.img);
+                myImageView = (MyImageView) itemView.findViewById(R.id.img);
         }
     }
     public static class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -55,12 +47,12 @@ public class MyActivity extends Activity {
         @Override
         public void onBindViewHolder(MyViewHolder holder, int i) {
             if (i % 20 == 0) {
-                holder.linearlayout.setVisibility(View.VISIBLE);
+                holder.myImageView.setVisibility(View.VISIBLE);
                 holder.textview.setVisibility(View.GONE);
-                Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.linearlayout.getImageView());
+                Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.myImageView);
 
             } else {
-                holder.linearlayout.setVisibility(View.GONE);
+                holder.myImageView.setVisibility(View.GONE);
                 holder.textview.setVisibility(View.VISIBLE);
                 holder.textview.setText("position " + i);
             }
@@ -74,15 +66,13 @@ public class MyActivity extends Activity {
 
     }
 
-    private int mLastFirstVisibleItem;
-    private boolean mIsScrollingUp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
         mListView = (RecyclerView) findViewById(R.id.listview);
         mListView.setLayoutManager(new LinearLayoutManager(this));
-        mListView.addItemDecoration(new DividerItemDecoration(this,LinearLayout.VERTICAL));
+        mListView.addItemDecoration(new MyItemDecoration());
         mListView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
