@@ -15,31 +15,14 @@ import android.widget.ImageView;
  * Created by ted on 14/12/9.
  */
 public class MyImageView extends ImageView {
-
-    public static class ChangeYEvent {
-        public ChangeYEvent(int dy) {
-            this.dy = dy;
-        }
-
-        private int dy;
-
-        public int getDy() {
-            return dy;
-        }
-    }
-
     private int mScreenHeight;
     private int mScreenWidth;
-    float mMaximumHeight ;
+    float mMaximumHeight;
     float mMaximumWidht;
     int mVisualHeight = 300;
-    int mVisualWidth =1080;
+    int mVisualWidth = 1080;
+    float mBaseOffset = 100;
 
-    Orientation mOrientation;
-    enum Orientation{
-        Vertical,
-        Horizontal
-    }
 
     public MyImageView(Context context) {
         super(context);
@@ -63,15 +46,11 @@ public class MyImageView extends ImageView {
         display.getSize(size);
         mScreenWidth = size.x;
         mScreenHeight = size.y;
-
-
-
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         setMeasuredDimension(mVisualWidth, mVisualHeight);
 
     }
@@ -79,105 +58,106 @@ public class MyImageView extends ImageView {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        y=0;
+        mShiftOffset = 0;
     }
 
     @Override
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
 
-        if(getDrawable()!=null) {
-            float[] f = new float[9];
-            getImageMatrix().getValues(f);
-            Log.d("Ted","getHeight "+ getHeight() +" "+getDrawable().getIntrinsicHeight()+ " "+getWidth() +" "+getDrawable().getIntrinsicWidth());
-            Log.d("Ted","sku "+f[Matrix.MSKEW_X]+ " "+f[Matrix.MSKEW_Y] +" "+f[Matrix.MPERSP_0]+" "+f[Matrix.MPERSP_1]+" "+f[Matrix.MPERSP_2]);
-            f[Matrix.MTRANS_X] = 0;
-            f[Matrix.MSCALE_X] = (float)getWidth() / (float)getDrawable().getIntrinsicWidth();
-            f[Matrix.MSCALE_Y] = (float)getWidth() / (float)getDrawable().getIntrinsicWidth();
-            Matrix m = getImageMatrix();
-            m.setValues(f);
-            setScaleType(ScaleType.MATRIX);
-            setImageMatrix(m);
-            requestLayout();
-            invalidate();
-            caluculate();
+        if (getDrawable() != null) {
+            //將圖片設定為橫幅滿版
+            scaleImageToFull();
+
+            //計算最大可移動高度
+            caluculateMaximum();
 
         }
     }
 
-    private void caluculate(){
+    private void scaleImageToFull(){
+        float[] f = new float[9];
+        getImageMatrix().getValues(f);
+        f[Matrix.MTRANS_X] = 0;
+        f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        mShiftOffset = f[Matrix.MTRANS_Y];
+        Matrix m = getImageMatrix();
+        m.setValues(f);
+        setScaleType(ScaleType.MATRIX);
+        setImageMatrix(m);
+        requestLayout();
+        invalidate();
+    }
+
+    private void caluculateMaximum() {
         float[] f = new float[9];
         getImageMatrix().getValues(f);
 
-        // Extract the scale values using the constants (if aspect ratio maintained, scaleX == scaleY)
         final float scaleX = f[Matrix.MSCALE_X];
         final float scaleY = f[Matrix.MSCALE_Y];
         final Drawable d = getDrawable();
         final int origW = d.getIntrinsicWidth();
         final int origH = d.getIntrinsicHeight();
 
-        // Calculate the actual dimensions
         final int actW = Math.round(origW * scaleX);
         final int actH = Math.round(origH * scaleY);
         mMaximumHeight = Math.abs(actH - mVisualHeight);
         mMaximumWidht = Math.abs(actH - mVisualWidth);
-        Log.d(getClass().getName(),"MaxHeight "+mMaximumHeight + "MaxWidth "+mMaximumWidht);
+        Log.d(getClass().getName(), "MaxHeight " + mMaximumHeight + "MaxWidth " + mMaximumWidht);
 
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-Log.d("Ted","yyy "+y);
-        Log.d("Ted","getPAdding"+getPaddingBottom()+" "+getPaddingTop());
 
         super.onDraw(canvas);
-        float[] ff = new float[9];
-        getImageMatrix().getValues(ff);
-        ff[Matrix.MTRANS_X] = 0;
-        ff[Matrix.MTRANS_Y] = y;
-        Matrix m = getImageMatrix();
-        m.setValues(ff);
-        setImageMatrix(m);
-        requestLayout();
-
-//        if(getDrawable()!=null) {
-//            float[] f = new float[9];
-//            getImageMatrix().getValues(f);
-//
-//            // Extract the scale values using the constants (if aspect ratio maintained, scaleX == scaleY)
-//            final float scaleX = f[Matrix.MSCALE_X];
-//            final float scaleY = f[Matrix.MSCALE_Y];
-//            final Drawable d = getDrawable();
-//            final int origW = d.getIntrinsicWidth();
-//            final int origH = d.getIntrinsicHeight();
-//
-//            // Calculate the actual dimensions
-//            final int actW = Math.round(origW * scaleX);
-//            final int actH = Math.round(origH * scaleY);
-//            Log.e("DBG", "["+origW+","+origH+"] -> ["+actW+","+actH+"] & scales: x="+scaleX+" y="+scaleY);
-//        }
+        shiftImage();
     }
 
-    public void setY(int dy){
+    private void shiftImage() {
+        float[] values = new float[9];
+        getImageMatrix().getValues(values);
+        values[Matrix.MTRANS_X] = 0;
+        values[Matrix.MTRANS_Y] = mShiftOffset;
+        Matrix m = getImageMatrix();
+        m.setValues(values);
+        setImageMatrix(m);
+    }
 
-        double distance =  dy - mScreenHeight/2;
-        Log.d("Ted","distance "+distance);
-        if(distance < 0 && distance > -mMaximumHeight){
-            y = (float)distance;
+    public void setShiftOffset(int dy) {
+        //使圖片移動的時間點在整個畫面的中間
+        double distance = dy - mScreenHeight / 2;
+
+        //減緩圖片移動的速度
+        distance = distance * 0.05;
+
+        //圖片出現時應該確保是在正確的位置
+        checkPosition(distance);
+        Log.d("Ted", "distance " + distance);
+
+        //若沒有超出界限則設定shift 的offset
+        if (distance < 0 && distance > -mMaximumHeight) {
+            mShiftOffset = (float) distance;
             invalidate();
         }
-//            invalidate();
-//        setScrollY(y);
-//        }else if (dy <= mScreenHeight/2 ){
-//            int distance =  dy - mScreenHeight/2;
-//            y = distance*0.2f;
-//            invalidate();
-//        }
     }
 
-    private float y= 0;
+    private void checkPosition(double distance) {
 
+        float[] f = new float[9];
+        getImageMatrix().getValues(f);
+        float imagePostion = f[Matrix.MTRANS_Y];
+        if (distance < -mMaximumHeight && imagePostion != -mMaximumHeight) {
+            mShiftOffset = (float) -mMaximumHeight;
+        } else if (distance > 0 && imagePostion != 0) {
+            mShiftOffset = 0;
+        }
 
+        invalidate();
+    }
+
+    private float mShiftOffset = 0;
 
 
 }

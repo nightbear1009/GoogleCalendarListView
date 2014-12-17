@@ -18,7 +18,7 @@ public class MyItemDecoration extends RecyclerView.ItemDecoration {
             if (parent.getChildPosition(child) % 20 == 0) {
                 MyImageView v = (MyImageView)child.findViewById(R.id.img);
                 if(v!=null) {
-                    v.setY(child.getTop());
+                    v.setShiftOffset(child.getTop());
                 }
             }
 
