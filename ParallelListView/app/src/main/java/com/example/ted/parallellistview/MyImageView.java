@@ -1,14 +1,15 @@
 package com.example.ted.parallellistview;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Created by ted on 14/12/9.
@@ -27,8 +28,18 @@ public class MyImageView extends ImageView {
         }
     }
 
-    private int mHeight;
-    private int mWidth;
+    private int mScreenHeight;
+    private int mScreenWidth;
+    float mMaximumHeight ;
+    float mMaximumWidht;
+    int mVisualHeight = 300;
+    int mVisualWidth =1080;
+
+    Orientation mOrientation;
+    enum Orientation{
+        Vertical,
+        Horizontal
+    }
 
     public MyImageView(Context context) {
         super(context);
@@ -50,47 +61,123 @@ public class MyImageView extends ImageView {
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        mWidth  = size.x;
-        mHeight = size.y;
+        mScreenWidth = size.x;
+        mScreenHeight = size.y;
+
+
+
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        setMeasuredDimension(mWidth, 300);
+        setMeasuredDimension(mVisualWidth, mVisualHeight);
+
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        EventBus.getDefault().register(this);
-        setScrollY(0);
+        y=0;
     }
 
-    //
-    //Not Trigger
     @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        EventBus.getDefault().unregister(this);
-    }
+    public void setImageDrawable(Drawable drawable) {
+        super.setImageDrawable(drawable);
 
-    public void onEventMainThread(ChangeYEvent event) {
+        if(getDrawable()!=null) {
+            float[] f = new float[9];
+            getImageMatrix().getValues(f);
+            Log.d("Ted","getHeight "+ getHeight() +" "+getDrawable().getIntrinsicHeight()+ " "+getWidth() +" "+getDrawable().getIntrinsicWidth());
+            Log.d("Ted","sku "+f[Matrix.MSKEW_X]+ " "+f[Matrix.MSKEW_Y] +" "+f[Matrix.MPERSP_0]+" "+f[Matrix.MPERSP_1]+" "+f[Matrix.MPERSP_2]);
+            f[Matrix.MTRANS_X] = 0;
+            f[Matrix.MSCALE_X] = (float)getWidth() / (float)getDrawable().getIntrinsicWidth();
+            f[Matrix.MSCALE_Y] = (float)getWidth() / (float)getDrawable().getIntrinsicWidth();
+            Matrix m = getImageMatrix();
+            m.setValues(f);
+            setScaleType(ScaleType.MATRIX);
+            setImageMatrix(m);
+            requestLayout();
+            invalidate();
+            caluculate();
 
-        if(event.getDy() >= mHeight/2 &&  event.getDy() <= mHeight/2 + 200){
-           double distance =  event.getDy() - mHeight/2;
-           double scrollvalue = Math.pow(2,-distance)+1;
-            Log.d("Ted", " scroll up" + scrollvalue);
-           setScrollY((int)scrollvalue);
-        }else if (event.getDy() <= mHeight/2 && event.getDy() >= mHeight/2 - 200){
-            int distance =  event.getDy() - mHeight/2;
-            int scrollvalue = 2^distance+1;
-            Log.d("Ted", " scroll down" + scrollvalue);
-            setScrollY(-scrollvalue);
-        }else{
         }
+    }
 
+    private void caluculate(){
+        float[] f = new float[9];
+        getImageMatrix().getValues(f);
+
+        // Extract the scale values using the constants (if aspect ratio maintained, scaleX == scaleY)
+        final float scaleX = f[Matrix.MSCALE_X];
+        final float scaleY = f[Matrix.MSCALE_Y];
+        final Drawable d = getDrawable();
+        final int origW = d.getIntrinsicWidth();
+        final int origH = d.getIntrinsicHeight();
+
+        // Calculate the actual dimensions
+        final int actW = Math.round(origW * scaleX);
+        final int actH = Math.round(origH * scaleY);
+        mMaximumHeight = Math.abs(actH - mVisualHeight);
+        mMaximumWidht = Math.abs(actH - mVisualWidth);
+        Log.d(getClass().getName(),"MaxHeight "+mMaximumHeight + "MaxWidth "+mMaximumWidht);
 
     }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+Log.d("Ted","yyy "+y);
+        Log.d("Ted","getPAdding"+getPaddingBottom()+" "+getPaddingTop());
+
+        super.onDraw(canvas);
+        float[] ff = new float[9];
+        getImageMatrix().getValues(ff);
+        ff[Matrix.MTRANS_X] = 0;
+        ff[Matrix.MTRANS_Y] = y;
+        Matrix m = getImageMatrix();
+        m.setValues(ff);
+        setImageMatrix(m);
+        requestLayout();
+
+//        if(getDrawable()!=null) {
+//            float[] f = new float[9];
+//            getImageMatrix().getValues(f);
+//
+//            // Extract the scale values using the constants (if aspect ratio maintained, scaleX == scaleY)
+//            final float scaleX = f[Matrix.MSCALE_X];
+//            final float scaleY = f[Matrix.MSCALE_Y];
+//            final Drawable d = getDrawable();
+//            final int origW = d.getIntrinsicWidth();
+//            final int origH = d.getIntrinsicHeight();
+//
+//            // Calculate the actual dimensions
+//            final int actW = Math.round(origW * scaleX);
+//            final int actH = Math.round(origH * scaleY);
+//            Log.e("DBG", "["+origW+","+origH+"] -> ["+actW+","+actH+"] & scales: x="+scaleX+" y="+scaleY);
+//        }
+    }
+
+    public void setY(int dy){
+
+        double distance =  dy - mScreenHeight/2;
+        Log.d("Ted","distance "+distance);
+        if(distance < 0 && distance > -mMaximumHeight){
+            y = (float)distance;
+            invalidate();
+        }
+//            invalidate();
+//        setScrollY(y);
+//        }else if (dy <= mScreenHeight/2 ){
+//            int distance =  dy - mScreenHeight/2;
+//            y = distance*0.2f;
+//            invalidate();
+//        }
+    }
+
+    private float y= 0;
+
+
+
+
 }

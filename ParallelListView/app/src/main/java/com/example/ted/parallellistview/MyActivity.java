@@ -21,14 +21,23 @@ public class MyActivity extends Activity {
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         TextView textview;
-        MyImageView myImageView;
         public MyViewHolder(View itemView) {
             super(itemView);
                 textview = (TextView) itemView.findViewById(R.id.textview);
-                myImageView = (MyImageView) itemView.findViewById(R.id.img);
         }
+
     }
-    public static class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
+
+    public static class MyImageViewHolder extends RecyclerView.ViewHolder{
+        MyImageView myImageView;
+        public MyImageViewHolder(View itemView) {
+            super(itemView);
+            myImageView = (MyImageView) itemView.findViewById(R.id.img);
+        }
+
+    }
+
+    public static class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private LayoutInflater inflater;
 
         public MyAdapter(Context context) {
@@ -37,24 +46,32 @@ public class MyActivity extends Activity {
         }
 
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            View view = inflater.inflate(R.layout.adapter_layout, null, false);
-            MyViewHolder viewHolder = new MyViewHolder(view);
-            return viewHolder;
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            if(viewType == 0 ) {
+                View view = inflater.inflate(R.layout.adapter_layout, null, false);
+                return new MyViewHolder(view);
+            }else {
+                View view = inflater.inflate(R.layout.image_adapter_layout, null, false);
+                return new MyImageViewHolder(view);
+            }
         }
 
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder, int i) {
-            if (i % 20 == 0) {
-                holder.myImageView.setVisibility(View.VISIBLE);
-                holder.textview.setVisibility(View.GONE);
-                Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(holder.myImageView);
+        public int getItemViewType(int position) {
+            return position % 20 == 0 ? 1 : 0 ;
+        }
 
-            } else {
-                holder.myImageView.setVisibility(View.GONE);
-                holder.textview.setVisibility(View.VISIBLE);
-                holder.textview.setText("position " + i);
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+            switch (getItemViewType(i)) {
+                case 0:
+                    ((MyViewHolder)holder).textview.setText("position " + i);
+                    break;
+                case 1:
+                    Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(((MyImageViewHolder)holder).myImageView);
+                    break;
+
             }
         }
 
