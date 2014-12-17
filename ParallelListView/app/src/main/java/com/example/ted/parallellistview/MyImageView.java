@@ -23,7 +23,7 @@ public class MyImageView extends ImageView {
 
     //一定要小於0 圖片才會往上移動
     float mBaseOffset;
-    float mMaximumHeight;
+    float mMaximumShift;
     float mMaximumWidht;
 
     public MyImageView(Context context) {
@@ -106,9 +106,9 @@ public class MyImageView extends ImageView {
 
         final int actW = Math.round(origW * scaleX);
         final int actH = Math.round(origH * scaleY);
-        mMaximumHeight = Math.abs(actH - mVisualHeight);
+        mMaximumShift = -Math.abs(actH - mVisualHeight);
         mMaximumWidht = Math.abs(actH - mVisualWidth);
-        Log.d(getClass().getName(), "MaxHeight " + mMaximumHeight + "MaxWidth " + mMaximumWidht);
+        Log.d(getClass().getName(), "MaxHeight " + mMaximumShift + "MaxWidth " + mMaximumWidht);
 
     }
 
@@ -135,10 +135,10 @@ public class MyImageView extends ImageView {
 
         //圖片出現時應該確保是在正確的位置
         checkPosition(distance);
-        Log.d("Ted", "distance " + distance +"-mMaximumHeight "+ -mMaximumHeight);
+        Log.d("Ted", "distance " + distance +"-mMaximumShift "+ mMaximumShift);
 
         //若沒有超出界限則設定shift 的offset
-        if (distance < mBaseOffset && distance > -mMaximumHeight) {
+        if (distance < mBaseOffset && distance > mMaximumShift) {
             mShiftOffset = (float) distance;
             invalidate();
         }
@@ -149,8 +149,8 @@ public class MyImageView extends ImageView {
         float[] f = new float[9];
         getImageMatrix().getValues(f);
         float imagePostion = f[Matrix.MTRANS_Y];
-        if (distance < -mMaximumHeight && imagePostion != -mMaximumHeight) {
-            mShiftOffset = (float) -mMaximumHeight;
+        if (distance < mMaximumShift && imagePostion != mMaximumShift) {
+            mShiftOffset = (float) mMaximumShift;
         } else if (distance > mBaseOffset && imagePostion != mBaseOffset) {
             mShiftOffset = mBaseOffset;
         }
