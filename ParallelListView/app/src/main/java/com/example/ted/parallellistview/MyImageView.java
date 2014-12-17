@@ -17,12 +17,14 @@ import android.widget.ImageView;
 public class MyImageView extends ImageView {
     private int mScreenHeight;
     private int mScreenWidth;
-    float mMaximumHeight;
-    float mMaximumWidht;
+
     int mVisualHeight = 300;
     int mVisualWidth = 1080;
-    float mBaseOffset = 100;
 
+    //一定要小於0 圖片才會往上移動
+    float mBaseOffset;
+    float mMaximumHeight;
+    float mMaximumWidht;
 
     public MyImageView(Context context) {
         super(context);
@@ -58,7 +60,7 @@ public class MyImageView extends ImageView {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mShiftOffset = 0;
+        mShiftOffset = mBaseOffset;
     }
 
     @Override
@@ -72,6 +74,7 @@ public class MyImageView extends ImageView {
             //計算最大可移動高度
             caluculateMaximum();
 
+            mBaseOffset = -getDrawable().getIntrinsicHeight()/3;
         }
     }
 
@@ -81,6 +84,7 @@ public class MyImageView extends ImageView {
         f[Matrix.MTRANS_X] = 0;
         f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
         f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        f[Matrix.MTRANS_Y] = -mBaseOffset;
         mShiftOffset = f[Matrix.MTRANS_Y];
         Matrix m = getImageMatrix();
         m.setValues(f);
@@ -129,15 +133,12 @@ public class MyImageView extends ImageView {
         //使圖片移動的時間點在整個畫面的中間
         double distance = dy - mScreenHeight / 2;
 
-        //減緩圖片移動的速度
-        distance = distance * 0.05;
-
         //圖片出現時應該確保是在正確的位置
         checkPosition(distance);
-        Log.d("Ted", "distance " + distance);
+        Log.d("Ted", "distance " + distance +"-mMaximumHeight "+ -mMaximumHeight);
 
         //若沒有超出界限則設定shift 的offset
-        if (distance < 0 && distance > -mMaximumHeight) {
+        if (distance < mBaseOffset && distance > -mMaximumHeight) {
             mShiftOffset = (float) distance;
             invalidate();
         }
@@ -150,8 +151,8 @@ public class MyImageView extends ImageView {
         float imagePostion = f[Matrix.MTRANS_Y];
         if (distance < -mMaximumHeight && imagePostion != -mMaximumHeight) {
             mShiftOffset = (float) -mMaximumHeight;
-        } else if (distance > 0 && imagePostion != 0) {
-            mShiftOffset = 0;
+        } else if (distance > mBaseOffset && imagePostion != mBaseOffset) {
+            mShiftOffset = mBaseOffset;
         }
 
         invalidate();
