@@ -56,20 +56,6 @@ public class MyImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(mVisualWidth, mVisualHeight);
-
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mShiftOffset = mBaseOffset;
-    }
-
-    @Override
-    public void setImageDrawable(Drawable drawable) {
-        super.setImageDrawable(drawable);
-
         if (getDrawable() != null) {
 
             //setDefault offset
@@ -81,11 +67,21 @@ public class MyImageView extends ImageView {
             //計算最大可移動高度
             caluculateMaximum();
 
-
         }
+        Log.d(getClass().getName(),"onMeausre width"+MeasureSpec.getSize(widthMeasureSpec)+"onMeausre height"+MeasureSpec.getSize(heightMeasureSpec) );
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mVisualHeight);
+
+
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mShiftOffset = mBaseOffset;
     }
 
     private void scaleImageToFull(){
+        Log.d("Ted","scaleImageToFull "+mBaseOffset + (float) getWidth() / (float) getDrawable().getIntrinsicWidth() );
         float[] f = new float[9];
         getImageMatrix().getValues(f);
         f[Matrix.MTRANS_X] = 0;
@@ -121,12 +117,25 @@ public class MyImageView extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if(BuildConfig.DEBUG) {
+            printMatrix();
+        }
 
         super.onDraw(canvas);
+
         shiftImage();
     }
 
+    private void printMatrix(){
+        float[] f = new float[9];
+        getImageMatrix().getValues(f);
+        for(int i=0; i<f.length ; i++){
+            Log.d(getClass().getName(),"matrix value "+f[i]);
+        }
+    }
+
     private void shiftImage() {
+        Log.d(getClass().getName(),"shiftImage "+mShiftOffset);
         float[] values = new float[9];
         getImageMatrix().getValues(values);
         values[Matrix.MTRANS_X] = 0;
@@ -142,7 +151,7 @@ public class MyImageView extends ImageView {
 
         //圖片出現時應該確保是在正確的位置
         checkPosition(distance);
-        Log.d("Ted", "distance " + distance +"-mMaximumShift "+ mMaximumShift);
+        Log.d(getClass().getName(), "distance " + distance +"-mMaximumShift "+ mMaximumShift);
 
         //若沒有超出界限則設定shift 的offset
         if (distance < mBaseOffset && distance > mMaximumShift) {
