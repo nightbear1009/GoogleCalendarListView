@@ -24,7 +24,7 @@ public class ShiftImageView extends ImageView implements onShiftListener {
     private int mVisualWidth = 1080;
 
     //移動的速度
-    private float mShiftSpeed = 0.3f;
+    private float mShiftSpeed = 0.7f;
 
     //一定要小於0 圖片才會往上移動
     private float mBaseOffset;
@@ -70,6 +70,11 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         display.getSize(size);
         mScreenWidth = size.x;
         mScreenHeight = size.y;
+        setScaleType(ScaleType.MATRIX);
+
+        //setDefault offset
+        mBaseOffset = 0;
+        mShiftOffset = mBaseOffset;
     }
 
     @Override
@@ -78,12 +83,10 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         if(getWidth() != 0 && getHeight() !=0) {
             if (getDrawable() != null) {
 
-                //setDefault offset
-                mBaseOffset = 0;
-
                 //將圖片設定為橫幅滿版
                 scaleImageToFull();
 
+                Log.d("Ted","Height "+getHeight() +" "+getWidth());
                 //計算最大可移動高度
                 caluculateMaximum();
 
@@ -93,12 +96,6 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mVisualHeight);
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mShiftOffset = mBaseOffset;
-    }
-
     private void scaleImageToFull() {
         Log.d("Ted", "scaleImageToFull " + mBaseOffset + (float) getWidth() / (float) getDrawable().getIntrinsicWidth());
         float[] f = new float[9];
@@ -106,11 +103,10 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         f[Matrix.MTRANS_X] = 0;
         f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
         f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
-        f[Matrix.MTRANS_Y] = mBaseOffset;
-        mShiftOffset = f[Matrix.MTRANS_Y];
+        f[Matrix.MTRANS_Y] = mShiftOffset * mShiftSpeed;
+//        mShiftOffset = f[Matrix.MTRANS_Y];
         Matrix m = getImageMatrix();
         m.setValues(f);
-        setScaleType(ScaleType.MATRIX);
         setImageMatrix(m);
         requestLayout();
         invalidate();
@@ -142,7 +138,6 @@ public class ShiftImageView extends ImageView implements onShiftListener {
 
         super.onDraw(canvas);
 
-        
         shiftImage();
     }
 
@@ -159,11 +154,16 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         float[] values = new float[9];
         getImageMatrix().getValues(values);
         values[Matrix.MTRANS_X] = 0;
+        if(getDrawable()!=null) {
+            values[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+            values[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        }
         values[Matrix.MTRANS_Y] = mShiftOffset * mShiftSpeed;
         Matrix m = getImageMatrix();
         m.setValues(values);
         setImageMatrix(m);
     }
+
 
     @Override
     public void setShiftOffset(int dy) {
