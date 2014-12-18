@@ -24,7 +24,7 @@ public class ShiftImageView extends ImageView implements onShiftListener {
     private int mVisualWidth = 1080;
 
     //移動的速度
-    private float mShiftSpeed = 0.7f;
+    private float mShiftSpeed = 1f;
 
     //一定要小於0 圖片才會往上移動
     private float mBaseOffset;

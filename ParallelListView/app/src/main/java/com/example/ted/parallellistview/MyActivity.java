@@ -16,7 +16,7 @@ import com.ted.scrollimageRecyclerview.ShiftImageView;
 
 
 public class MyActivity extends Activity {
-    private RecyclerView mListView;
+    private RecyclerView mRecyclerView;
     private MyAdapter mAdapter;
 
 
@@ -70,7 +70,7 @@ public class MyActivity extends Activity {
                     ((MyViewHolder)holder).textview.setText("position " + i);
                     break;
                 case 1:
-                    Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(600,400).into(((MyImageViewHolder)holder).myImageView);
+                    Picasso.with(inflater.getContext()).load(Data.URLS[i/10]).resize(800,600).into(((MyImageViewHolder)holder).myImageView);
                     break;
 
             }
@@ -88,17 +88,17 @@ public class MyActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-        mListView = (RecyclerView) findViewById(R.id.listview);
-        mListView.setLayoutManager(new LinearLayoutManager(this));
-        mListView.addItemDecoration(new MyItemDecoration());
-        mListView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.listview);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new MyItemDecoration());
+        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
         mAdapter = new MyAdapter(MyActivity.this);
-        mListView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
 
 
     }
