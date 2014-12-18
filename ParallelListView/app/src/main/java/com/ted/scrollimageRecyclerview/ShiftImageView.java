@@ -100,11 +100,15 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         Log.d("Ted", "scaleImageToFull " + mBaseOffset + (float) getWidth() / (float) getDrawable().getIntrinsicWidth());
         float[] f = new float[9];
         getImageMatrix().getValues(f);
-        f[Matrix.MTRANS_X] = 0;
+        f[Matrix.MTRANS_X] = (getWidth() - getDrawable().getIntrinsicWidth())/2;
+
+        /* 全幅橫版
         f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
         f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        */
+
         f[Matrix.MTRANS_Y] = mShiftOffset * mShiftSpeed;
-//        mShiftOffset = f[Matrix.MTRANS_Y];
+        mShiftOffset = f[Matrix.MTRANS_Y];
         Matrix m = getImageMatrix();
         m.setValues(f);
         setImageMatrix(m);
@@ -153,11 +157,14 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         Log.d(getClass().getName(), "shiftImage " + mShiftOffset);
         float[] values = new float[9];
         getImageMatrix().getValues(values);
-        values[Matrix.MTRANS_X] = 0;
-        if(getDrawable()!=null) {
-            values[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
-            values[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+       
+        /* 全幅橫版
+         if(getDrawable()!=null) {
+        f[Matrix.MSCALE_X] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
+        f[Matrix.MSCALE_Y] = (float) getWidth() / (float) getDrawable().getIntrinsicWidth();
         }
+        */
+
         values[Matrix.MTRANS_Y] = mShiftOffset * mShiftSpeed;
         Matrix m = getImageMatrix();
         m.setValues(values);
@@ -177,8 +184,10 @@ public class ShiftImageView extends ImageView implements onShiftListener {
         //若沒有超出界限則設定shift 的offset
         if (distance < mBaseOffset && distance > mMaximumShift) {
             mShiftOffset = (float) distance;
-            invalidate();
+
         }
+
+        invalidate();
     }
 
     private void checkPosition(double distance) {
@@ -192,7 +201,6 @@ public class ShiftImageView extends ImageView implements onShiftListener {
             mShiftOffset = mBaseOffset;
         }
 
-        invalidate();
     }
 
     private float mShiftOffset = 0;
