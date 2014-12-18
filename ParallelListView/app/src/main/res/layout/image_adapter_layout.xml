@@ -6,7 +6,7 @@
     android:background="#cccccc"
     android:orientation="vertical">
 
-    <com.example.ted.parallellistview.MyImageView
+    <com.ted.scrollimageRecyclerview.ShiftImageView
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

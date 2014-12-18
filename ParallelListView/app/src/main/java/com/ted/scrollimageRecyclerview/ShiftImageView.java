@@ -1,4 +1,4 @@
-package com.example.ted.parallellistview;
+package com.ted.scrollimageRecyclerview;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -11,10 +11,12 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.example.ted.parallellistview.BuildConfig;
+
 /**
  * Created by ted on 14/12/9.
  */
-public class MyImageView extends ImageView {
+public class ShiftImageView extends ImageView implements onShiftListener {
     private int mScreenHeight;
     private int mScreenWidth;
 
@@ -29,20 +31,37 @@ public class MyImageView extends ImageView {
     private float mMaximumShift;
     private float mMaximumWidht;
 
-    public MyImageView(Context context) {
+    public void setmVisualHeight(int mVisualHeight) {
+        this.mVisualHeight = mVisualHeight;
+    }
+
+    public void setmVisualWidth(int mVisualWidth) {
+        this.mVisualWidth = mVisualWidth;
+    }
+
+    public void setmShiftSpeed(float mShiftSpeed) {
+        this.mShiftSpeed = mShiftSpeed;
+    }
+
+    public void setmBaseOffset(float mBaseOffset) {
+        this.mBaseOffset = mBaseOffset;
+    }
+
+    public ShiftImageView(Context context) {
         super(context);
         init();
     }
 
-    public MyImageView(Context context, AttributeSet attrs) {
+    public ShiftImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public MyImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ShiftImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
+
 
     private void init() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
@@ -56,22 +75,22 @@ public class MyImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (getDrawable() != null) {
+        if(getWidth() != 0 && getHeight() !=0) {
+            if (getDrawable() != null) {
 
-            //setDefault offset
-            mBaseOffset = -getDrawable().getIntrinsicHeight()/3;
+                //setDefault offset
+                mBaseOffset = 0;
 
-            //將圖片設定為橫幅滿版
-            scaleImageToFull();
+                //將圖片設定為橫幅滿版
+                scaleImageToFull();
 
-            //計算最大可移動高度
-            caluculateMaximum();
+                //計算最大可移動高度
+                caluculateMaximum();
 
+            }
         }
-        Log.d(getClass().getName(),"onMeausre width"+MeasureSpec.getSize(widthMeasureSpec)+"onMeausre height"+MeasureSpec.getSize(heightMeasureSpec) );
+        Log.d(getClass().getName(), "onMeausre width" + MeasureSpec.getSize(widthMeasureSpec) + "onMeausre height" + MeasureSpec.getSize(heightMeasureSpec));
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mVisualHeight);
-
-
     }
 
     @Override
@@ -80,8 +99,8 @@ public class MyImageView extends ImageView {
         mShiftOffset = mBaseOffset;
     }
 
-    private void scaleImageToFull(){
-        Log.d("Ted","scaleImageToFull "+mBaseOffset + (float) getWidth() / (float) getDrawable().getIntrinsicWidth() );
+    private void scaleImageToFull() {
+        Log.d("Ted", "scaleImageToFull " + mBaseOffset + (float) getWidth() / (float) getDrawable().getIntrinsicWidth());
         float[] f = new float[9];
         getImageMatrix().getValues(f);
         f[Matrix.MTRANS_X] = 0;
@@ -117,41 +136,43 @@ public class MyImageView extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             printMatrix();
         }
 
         super.onDraw(canvas);
 
+        
         shiftImage();
     }
 
-    private void printMatrix(){
+    private void printMatrix() {
         float[] f = new float[9];
         getImageMatrix().getValues(f);
-        for(int i=0; i<f.length ; i++){
-            Log.d(getClass().getName(),"matrix value "+f[i]);
+        for (int i = 0; i < f.length; i++) {
+            Log.d(getClass().getName(), "matrix value " + f[i]);
         }
     }
 
     private void shiftImage() {
-        Log.d(getClass().getName(),"shiftImage "+mShiftOffset);
+        Log.d(getClass().getName(), "shiftImage " + mShiftOffset);
         float[] values = new float[9];
         getImageMatrix().getValues(values);
         values[Matrix.MTRANS_X] = 0;
-        values[Matrix.MTRANS_Y] = mShiftOffset* mShiftSpeed;
+        values[Matrix.MTRANS_Y] = mShiftOffset * mShiftSpeed;
         Matrix m = getImageMatrix();
         m.setValues(values);
         setImageMatrix(m);
     }
 
+    @Override
     public void setShiftOffset(int dy) {
         //使圖片移動的時間點在整個畫面的中間
         double distance = dy - mScreenHeight / 2;
 
         //圖片出現時應該確保是在正確的位置
         checkPosition(distance);
-        Log.d(getClass().getName(), "distance " + distance +"-mMaximumShift "+ mMaximumShift);
+        Log.d(getClass().getName(), "distance " + distance + "-mMaximumShift " + mMaximumShift);
 
         //若沒有超出界限則設定shift 的offset
         if (distance < mBaseOffset && distance > mMaximumShift) {

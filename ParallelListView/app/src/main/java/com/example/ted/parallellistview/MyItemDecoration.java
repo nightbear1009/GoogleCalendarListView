@@ -1,27 +1,16 @@
 package com.example.ted.parallellistview;
 
-import android.graphics.Canvas;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.ted.scrollimageRecyclerview.ShiftItemDecoration;
+import com.ted.scrollimageRecyclerview.onShiftListener;
+
 /**
- * Created by ted on 14/12/17.
+ * Created by ted on 14/12/18.
  */
-public class MyItemDecoration extends RecyclerView.ItemDecoration {
-
+public class MyItemDecoration extends ShiftItemDecoration {
     @Override
-    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-        super.onDraw(c, parent, state);
-        int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = parent.getChildAt(i);
-            if (parent.getChildPosition(child) % 20 == 0) {
-                MyImageView v = (MyImageView)child.findViewById(R.id.img);
-                if(v!=null) {
-                    v.setShiftOffset(child.getTop());
-                }
-            }
-
-        }
+    public onShiftListener getShiftListener(View view) {
+        return (onShiftListener)view.findViewById(R.id.img);
     }
 }

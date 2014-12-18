@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.ted.scrollimageRecyclerview.ShiftImageView;
 
 
 public class MyActivity extends Activity {
@@ -29,10 +30,10 @@ public class MyActivity extends Activity {
     }
 
     public static class MyImageViewHolder extends RecyclerView.ViewHolder{
-        MyImageView myImageView;
+        ShiftImageView myImageView;
         public MyImageViewHolder(View itemView) {
             super(itemView);
-            myImageView = (MyImageView) itemView.findViewById(R.id.img);
+            myImageView = (ShiftImageView) itemView.findViewById(R.id.img);
         }
 
     }
@@ -96,6 +97,8 @@ public class MyActivity extends Activity {
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+        mAdapter = new MyAdapter(MyActivity.this);
+        mListView.setAdapter(mAdapter);
 
 
     }
@@ -103,8 +106,7 @@ public class MyActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mAdapter = new MyAdapter(MyActivity.this);
-        mListView.setAdapter(mAdapter);
+
     }
 
     @Override
